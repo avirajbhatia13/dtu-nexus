@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import PostCard from '@/components/feed/PostCard';
-import { User, LogOut, Settings, Award, Loader2, Edit2 } from 'lucide-react';
+import Link from 'next/link';
+import { User, LogOut, Settings, Award, Loader2, Edit2, ShieldCheck } from 'lucide-react';
 import EditProfileModal from '@/components/profile/EditProfileModal';
 import MyGigsList from '@/components/profile/MyGigsList';
 import MyApplicationsList from '@/components/profile/MyApplicationsList';
@@ -142,6 +143,16 @@ export default function ProfilePage() {
                                 <MyApplicationsList />
                             </div>
                         </div>
+                    )}
+
+                    {user.role === 'admin' && (
+                        <Link
+                            href="/admin"
+                            className="w-full bg-[#800000] text-white p-4 rounded-xl shadow-sm flex items-center justify-center gap-3 mb-3 hover:bg-[#600000] transition-colors"
+                        >
+                            <ShieldCheck className="h-5 w-5" />
+                            <span className="text-sm font-bold">Admin Console — Manage Positions</span>
+                        </Link>
                     )}
 
                     <button

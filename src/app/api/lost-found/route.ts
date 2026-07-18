@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import LostItem from '@/lib/models/LostItem';
+import User from '@/lib/models/User'; // Registered for .populate('finder')
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 

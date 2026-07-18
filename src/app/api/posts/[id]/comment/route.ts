@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Post from '@/lib/models/Post';
+import User from '@/lib/models/User'; // Registered for .populate('comments.user')
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 

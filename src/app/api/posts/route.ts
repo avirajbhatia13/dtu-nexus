@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Post from '@/lib/models/Post';
 import User from '@/lib/models/User'; // Ensure User model is registered
+import Gig from '@/lib/models/Gig'; // Registered for .populate('relatedGig')
+import LostItem from '@/lib/models/LostItem'; // Registered for .populate('relatedLostItem')
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
@@ -45,6 +47,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({ posts });
     } catch (error) {
+        console.error('Failed to fetch posts:', error);
         return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
     }
 }

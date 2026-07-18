@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Gig from '@/lib/models/Gig';
+import User from '@/lib/models/User'; // Registered for .populate('applicants.user')
 import { auth } from '@/auth'; // NextAuth
 
 export async function GET() {

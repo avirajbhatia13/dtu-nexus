@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+// Side-effect imports: registering every model here (not just where it's the
+// default export) guarantees Mongoose knows all schemas before any route runs
+// .populate(). Without this, a serverless instance whose first request is e.g.
+// /api/posts throws "Schema hasn't been registered for model Gig".
+import '@/lib/models/User';
+import '@/lib/models/Post';
+import '@/lib/models/Gig';
+import '@/lib/models/LostItem';
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
