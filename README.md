@@ -2,7 +2,11 @@
 
 The unified campus portal for **Delhi Technological University** — connecting students, faculty, and societies in one seamless platform.
 
-> **🔎 Reviewing this project?** Open the live demo and click **"✨ Try Live Demo (One-Click)"** on the login screen. No signup needed — it drops you straight into a fully seeded portal.
+### 🔗 Live: **[dtu-nexus.vercel.app](https://dtu-nexus.vercel.app)**
+
+<img src="public/hero.png" alt="DTU Nexus — Secure Campus Login" width="620">
+
+> **🔎 Reviewing this project?** Open **[the live demo](https://dtu-nexus.vercel.app)** and click **"✨ Try Live Demo (One-Click)"** on the login screen. No signup needed — it drops you straight into a fully seeded portal.
 
 ## ✨ Features
 
