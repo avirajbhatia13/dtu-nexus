@@ -41,11 +41,14 @@ export default function UtilitiesPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
-            <header className="bg-white sticky top-0 z-40 border-b border-slate-200 px-4 py-3 shadow-sm flex justify-between items-center">
-                <h1 className="text-xl font-bold text-[#800000] flex items-center gap-2">
-                    <MapPin className="h-6 w-6" /> Utilities
-                </h1>
-                <div className="flex bg-slate-100 rounded-full p-0.5">
+            <header className="bg-white/85 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200/80 px-4 py-3 flex justify-between items-center gap-3">
+                <div>
+                    <h1 className="text-lg font-extrabold text-slate-900 flex items-center gap-2 leading-tight tracking-tight">
+                        <MapPin className="h-5 w-5 text-[#800000]" /> Utilities
+                    </h1>
+                    <p className="text-[11px] text-slate-400 leading-tight mt-0.5">Lost &amp; found on campus</p>
+                </div>
+                <div className="flex bg-slate-100 rounded-full p-0.5 shrink-0">
                     {['all', 'lost', 'found'].map((f) => (
                         <button
                             key={f}
@@ -80,12 +83,29 @@ export default function UtilitiesPage() {
                 </div>
 
                 {loading ? (
-                    <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#800000]" /></div>
+                    <div className="grid grid-cols-2 gap-3" aria-busy="true">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                                <div className="skeleton h-16 w-16 rounded-full mx-auto mb-3" />
+                                <div className="skeleton h-3 w-3/4 rounded mb-2" />
+                                <div className="skeleton h-2.5 w-full rounded mb-1.5" />
+                                <div className="skeleton h-2.5 w-2/3 rounded" />
+                            </div>
+                        ))}
+                    </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 stagger">
                         {filteredItems.length === 0 && (
-                            <div className="col-span-2 text-center py-12 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                                No items found.
+                            <div className="col-span-2 text-center py-14 px-6 border-2 border-dashed border-slate-200 rounded-2xl bg-white/50 animate-fade-in">
+                                <div className="mx-auto h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                                    <Search className="h-6 w-6 text-slate-400" />
+                                </div>
+                                <p className="text-slate-700 font-semibold text-sm mb-1">
+                                    {activeFilter === 'all' ? 'Nothing reported yet' : `No ${activeFilter} items`}
+                                </p>
+                                <p className="text-slate-400 text-xs">
+                                    Report something you&apos;ve lost or found to get started.
+                                </p>
                             </div>
                         )}
                         {filteredItems.map(item => (
