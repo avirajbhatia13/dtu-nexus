@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import CreatePost from '@/components/feed/CreatePost';
 import Navbar from '@/components/Navbar';
 import PostCard from '@/components/feed/PostCard';
-import { Loader2 } from 'lucide-react';
+import { SkeletonList } from '@/components/ui/Skeleton';
+import { Newspaper } from 'lucide-react';
 
 export default function FeedPage() {
     const [posts, setPosts] = useState<any[]>([]);
@@ -63,28 +64,27 @@ export default function FeedPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
-            <header className="bg-white sticky top-0 z-40 border-b border-slate-200 shadow-sm">
-                <div className="px-4 py-3 flex justify-between items-center mb-1">
-                    <h1 className="text-xl font-bold text-[#800000]">Campus Feed</h1>
-                    <div className="flex items-center gap-3">
-                        {/* @ts-ignore */}
-                        <img src="/dtu-logo.jpg" alt="DTU" className="h-10 w-10 object-contain mix-blend-multiply" />
-                        <div className={`h-8 w-8 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold ${currentUserId ? 'bg-[#800000]' : 'bg-slate-300'}`}>
-                            {/* Placeholder */}
+            <header className="bg-white/85 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200/80">
+                <div className="max-w-xl mx-auto px-4 py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2.5">
+                        <img src="/dtu-logo.jpg" alt="" className="h-9 w-9 object-contain rounded-full ring-1 ring-slate-200" />
+                        <div>
+                            <h1 className="text-lg font-extrabold text-slate-900 leading-tight tracking-tight">Campus Feed</h1>
+                            <p className="text-[11px] text-slate-400 leading-tight">What&apos;s happening at DTU</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Scrollable Filters */}
-                <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-3">
+                <div className="max-w-xl mx-auto flex gap-2 overflow-x-auto no-scrollbar px-4 pb-3">
                     {filters.map((f) => (
                         <button
                             key={f.id}
                             onClick={() => setActiveFilter(f.id)}
-                            className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-semibold transition-all border
+                            className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border
                                 ${activeFilter === f.id
-                                    ? 'bg-[#800000] text-white border-[#800000] shadow-sm'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                                    ? 'bg-[#800000] text-white border-[#800000] shadow-sm shadow-[#800000]/20'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
                         >
                             {f.label}
                         </button>
@@ -92,20 +92,27 @@ export default function FeedPage() {
                 </div>
             </header>
 
-            <main className="max-w-md mx-auto p-4">
+            <main className="max-w-xl mx-auto p-4">
                 {activeFilter === 'all' && <CreatePost onPostCreated={fetchPosts} />}
                 {activeFilter === 'society' && <CreatePost onPostCreated={fetchPosts} />}
                 {/* Maybe allow creating society posts here? Logic implies CreatePost handles permission check */}
 
                 {loading ? (
-                    <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#800000]" /></div>
+                    <SkeletonList count={3} />
+                ) : posts.length === 0 ? (
+                    <div className="text-center py-16 px-6 animate-fade-in">
+                        <div className="mx-auto h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                            <Newspaper className="h-7 w-7 text-slate-400" />
+                        </div>
+                        <p className="text-slate-700 font-semibold mb-1">Nothing here yet</p>
+                        <p className="text-slate-400 text-sm">
+                            {activeFilter === 'all'
+                                ? 'Be the first to share something with campus.'
+                                : 'No posts in this section right now — try another filter.'}
+                        </p>
+                    </div>
                 ) : (
-                    <div className="space-y-4">
-                        {posts.length === 0 && (
-                            <div className="text-center py-10 text-slate-400 text-sm">
-                                No posts found in this section.
-                            </div>
-                        )}
+                    <div className="space-y-4 stagger">
                         {posts.map((post) => (
                             <PostCard
                                 key={post._id}

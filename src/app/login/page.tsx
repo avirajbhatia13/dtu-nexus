@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react'; // Client-side import
 
@@ -10,16 +10,17 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [demoLoading, setDemoLoading] = useState(false);
+    const [error, setError] = useState('');
     const router = useRouter();
 
-    const [demoLoading, setDemoLoading] = useState(false);
-
     const handleGoogleLogin = async () => {
-        await signIn("google", { callbackUrl: "/feed" });
+        await signIn('google', { callbackUrl: '/feed' });
     };
 
     const handleDemoLogin = async () => {
         setDemoLoading(true);
+        setError('');
         try {
             const res = await signIn('credentials', {
                 email: 'demo@dtu.ac.in',
@@ -28,14 +29,14 @@ export default function LoginPage() {
             });
 
             if (res?.error) {
-                alert('Demo account not found. Please run the seed first (/api/seed).');
+                setError('Demo account unavailable. Try seeding the database at /api/seed.');
             } else {
                 router.push('/feed');
                 router.refresh();
             }
         } catch (err) {
             console.error(err);
-            alert('Something went wrong');
+            setError('Something went wrong. Please try again.');
         } finally {
             setDemoLoading(false);
         }
@@ -44,6 +45,7 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
         try {
             const res = await signIn('credentials', {
@@ -53,41 +55,66 @@ export default function LoginPage() {
             });
 
             if (res?.error) {
-                alert('Invalid email or password');
+                setError('Invalid email or password.');
             } else {
                 router.push('/feed');
                 router.refresh(); // Ensure navbar/session updates
             }
         } catch (err) {
             console.error(err);
-            alert('Something went wrong');
+            setError('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-extrabold text-[#800000] mb-2 tracking-tight">DTU Nexus</h1>
-                    <p className="text-slate-500 font-medium">Secure Campus Login</p>
-                </div>
+        <div className="min-h-screen flex flex-col justify-center items-center p-4 py-10 bg-gradient-to-b from-[#800000] via-[#5c0000] to-slate-900">
+            {/* Brand */}
+            <div className="text-center mb-7 animate-fade-in">
+                <img
+                    src="/dtu-logo.jpg"
+                    alt=""
+                    className="h-16 w-16 object-contain rounded-full bg-white p-1 mx-auto mb-4 shadow-lg ring-1 ring-white/20"
+                />
+                <h1 className="text-3xl font-extrabold text-white tracking-tight">DTU Nexus</h1>
+                <p className="text-white/60 text-sm mt-1.5">The unified campus portal</p>
+            </div>
 
+            <div className="bg-white p-7 rounded-2xl shadow-2xl w-full max-w-md border border-white/10 animate-fade-in-up">
                 {/* One-Click Demo Login (for interviewers / recruiters) */}
                 <button
                     onClick={handleDemoLogin}
                     disabled={demoLoading}
-                    className="w-full bg-[#800000] hover:bg-[#600000] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#800000]/20 flex justify-center items-center gap-2 mb-3 active:scale-[0.99]"
+                    className="w-full bg-[#800000] hover:bg-[#600000] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#800000]/25 flex justify-center items-center gap-2 active:scale-[0.99] disabled:opacity-70"
                 >
-                    {demoLoading ? <Loader2 className="animate-spin h-5 w-5" /> : '✨ Try Live Demo (One-Click)'}
+                    {demoLoading ? (
+                        <Loader2 className="animate-spin h-5 w-5" />
+                    ) : (
+                        <>
+                            <Sparkles className="h-4 w-4" /> Try Live Demo
+                        </>
+                    )}
                 </button>
-                <p className="text-center text-xs text-slate-400 mb-6">Instantly explore the portal — no signup needed.</p>
+                <p className="text-center text-xs text-slate-400 mt-2 mb-5">
+                    Explore the full portal instantly — no signup needed.
+                </p>
+
+                <div className="relative mb-5">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                        <span className="px-3 bg-white text-slate-400 font-medium uppercase tracking-wider">
+                            or sign in
+                        </span>
+                    </div>
+                </div>
 
                 {/* Google Login Button */}
                 <button
                     onClick={handleGoogleLogin}
-                    className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-3 mb-6 active:scale-[0.99]"
+                    className="w-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-semibold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-3 mb-5 active:scale-[0.99]"
                 >
                     <svg className="h-5 w-5" viewBox="0 0 24 24">
                         <path
@@ -110,25 +137,19 @@ export default function LoginPage() {
                     Sign in with DTU ID
                 </button>
 
-                <div className="relative mb-6">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-200"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-slate-400 font-medium">Or continue with password</span>
-                    </div>
-                </div>
-
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-3.5">
                     <div>
-                        <label htmlFor="email" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                        <label
+                            htmlFor="email"
+                            className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5"
+                        >
                             University Email
                         </label>
                         <input
                             id="email"
                             type="email"
                             placeholder="student@dtu.ac.in"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] outline-none transition-all font-medium text-slate-800 placeholder:text-slate-300"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#800000]/10 focus:border-[#800000] outline-none transition-all font-medium text-slate-800 placeholder:text-slate-300"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -136,39 +157,56 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                        <label
+                            htmlFor="password"
+                            className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5"
+                        >
                             Password
                         </label>
                         <input
                             id="password"
                             type="password"
                             placeholder="Enter your password"
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000] outline-none transition-all font-medium text-slate-800 placeholder:text-slate-300"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#800000]/10 focus:border-[#800000] outline-none transition-all font-medium text-slate-800 placeholder:text-slate-300"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </div>
 
+                    {error && (
+                        <div
+                            role="alert"
+                            className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 animate-fade-in"
+                        >
+                            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[#800000] hover:bg-[#600000] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#800000]/20 flex justify-center items-center gap-2 active:scale-[0.99] mt-2"
+                        className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 active:scale-[0.99] disabled:opacity-70"
                     >
                         {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Log In'}
                     </button>
                 </form>
 
-                <div className="mt-8 text-center">
-                    <p className="text-sm text-slate-500 mb-2">Don't have an account?</p>
+                <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+                    <p className="text-sm text-slate-500 mb-1.5">Don&apos;t have an account?</p>
                     <Link
                         href="/register"
-                        className="inline-flex items-center gap-1.5 text-[#800000] font-bold hover:underline"
+                        className="inline-flex items-center gap-1.5 text-[#800000] font-bold hover:underline text-sm"
                     >
                         Create an Account <ArrowRight className="h-4 w-4" />
                     </Link>
                 </div>
             </div>
+
+            <p className="text-white/40 text-xs mt-6 text-center max-w-xs">
+                Google sign-in is restricted to verified DTU accounts.
+            </p>
         </div>
     );
 }

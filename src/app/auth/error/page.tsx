@@ -14,7 +14,10 @@ function ErrorContent() {
 
     if (error === 'AccessDenied') {
         title = "Restricted Access";
-        message = "This software is strictly for DTU students and professors only. Your email domain is not authorized.";
+        message = "DTU Nexus is limited to DTU students and faculty. Your email domain isn't authorized — try the one-click demo instead.";
+    } else if (error === 'Configuration') {
+        title = "Google Sign-In Unavailable";
+        message = "Google login isn't configured on this deployment yet. You can still explore everything using the one-click demo.";
     }
 
     return (

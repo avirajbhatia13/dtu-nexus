@@ -65,10 +65,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
             if (!email) return false;
 
-            // Allow only DTU domains
+            // Campus accounts are always allowed.
             const isDTU = email.endsWith("@dtu.ac.in") || email.endsWith("@dtu.edu");
 
-            if (!isDTU) return "/auth/error?error=AccessDenied";
+            // Extra addresses (project owner, reviewers) can be allowed without a
+            // code change via ALLOWED_EMAILS="a@gmail.com,b@gmail.com".
+            const allowlist = (process.env.ALLOWED_EMAILS || "")
+                .split(",")
+                .map((e) => e.trim().toLowerCase())
+                .filter(Boolean);
+            const isAllowlisted = allowlist.includes(email);
+
+            if (!isDTU && !isAllowlisted) return "/auth/error?error=AccessDenied";
 
             // 2. Sync Logic (Upsert User) - ONLY for OAuth
             if (account?.provider === 'google') {
