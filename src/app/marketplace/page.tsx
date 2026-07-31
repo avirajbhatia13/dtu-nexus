@@ -6,6 +6,7 @@ import { Briefcase, GraduationCap, Users, Plus, X, Search, MapPin, Clock, Filter
 import ApplyGigModal from '@/components/marketplace/ApplyGigModal';
 import CreateGigModal from '@/components/marketplace/CreateGigModal';
 import { formatDistanceToNow } from 'date-fns';
+import { SkeletonList } from '@/components/ui/Skeleton';
 
 interface Gig {
     _id: string;
@@ -28,6 +29,7 @@ export default function MarketplacePage() {
     const [gigs, setGigs] = useState<Gig[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('All');
+    const [query, setQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -58,31 +60,45 @@ export default function MarketplacePage() {
     }, []);
 
     const filteredGigs = gigs.filter(gig => {
-        if (filter === 'All') return true;
-        if (filter === 'Faculty Projects') return gig.type === 'faculty_project';
-        if (filter === 'Student Collabs') return gig.type === 'student_collab';
-        // Mocking other filters for now as schema only has 2 types roughly
-        return true;
+        // Category filter
+        if (filter === 'Faculty Projects' && gig.type !== 'faculty_project') return false;
+        if (filter === 'Student Collabs' && gig.type !== 'student_collab') return false;
+
+        // Free-text search across title, description, skills and poster
+        const q = query.trim().toLowerCase();
+        if (!q) return true;
+
+        return (
+            gig.title?.toLowerCase().includes(q) ||
+            gig.description?.toLowerCase().includes(q) ||
+            gig.compensation?.toLowerCase().includes(q) ||
+            gig.poster?.name?.toLowerCase().includes(q) ||
+            gig.skillsRequired?.some((s) => s.toLowerCase().includes(q))
+        );
     });
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
             {/* Header */}
-            <header className="bg-white sticky top-0 z-40 border-b border-slate-200 pt-4 pb-2 px-4 shadow-sm">
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-xl font-bold text-[#800000] flex items-center gap-2">
-                        <Briefcase className="h-6 w-6" /> Marketplace
-                    </h1>
+            <header className="bg-white/85 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200/80 pt-4 pb-2 px-4">
+                <div className="max-w-md mx-auto flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-lg font-extrabold text-slate-900 flex items-center gap-2 leading-tight tracking-tight">
+                            <Briefcase className="h-5 w-5 text-[#800000]" /> Marketplace
+                        </h1>
+                        <p className="text-[11px] text-slate-400 leading-tight mt-0.5">Gigs, projects & collaborations</p>
+                    </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-[#800000] text-white p-2 rounded-full shadow-lg hover:bg-[#600000] transition-colors"
+                        aria-label="Post an opportunity"
+                        className="bg-[#800000] text-white p-2.5 rounded-full shadow-lg shadow-[#800000]/20 hover:bg-[#600000] transition-colors active:scale-95"
                     >
                         <Plus className="h-5 w-5" />
                     </button>
                 </div>
 
                 {/* Horizontal Scrollable Filters */}
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                <div className="max-w-md mx-auto flex gap-2 overflow-x-auto no-scrollbar pb-2">
                     {filters.map((f) => (
                         <button
                             key={f}
@@ -104,15 +120,38 @@ export default function MarketplacePage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search for roles, skills..."
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#800000]/20 shadow-sm"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search roles, skills, people…"
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-9 py-3 text-sm focus:outline-none focus:border-[#800000] focus:ring-4 focus:ring-[#800000]/10 shadow-sm transition-all"
                     />
+                    {query && (
+                        <button
+                            onClick={() => setQuery('')}
+                            aria-label="Clear search"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
 
                 {loading ? (
-                    <div className="flex justify-center p-8"><Loader2 className="animate-spin text-[#800000]" /></div>
+                    <SkeletonList count={3} />
+                ) : filteredGigs.length === 0 ? (
+                    <div className="text-center py-16 px-6 animate-fade-in">
+                        <div className="mx-auto h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                            <Briefcase className="h-7 w-7 text-slate-400" />
+                        </div>
+                        <p className="text-slate-700 font-semibold mb-1">No opportunities found</p>
+                        <p className="text-slate-400 text-sm">
+                            {query
+                                ? `Nothing matches “${query}”. Try a different search.`
+                                : 'Nothing posted in this category yet — be the first.'}
+                        </p>
+                    </div>
                 ) : (
-                    <div className="grid gap-3">
+                    <div className="grid gap-3 stagger">
                         {filteredGigs.map(gig => (
                             <GigCard key={gig._id} gig={gig} currentUserId={currentUserId} />
                         ))}
